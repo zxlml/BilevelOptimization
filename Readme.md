@@ -1,16 +1,14 @@
-# Stability-based Generalization Assessment for Stochastic Bilevel Optimization
-
-Stochastic bilevel optimization (SBO) has been integrated into many machine learning paradigms recently including hyperparameter optimization, meta learning,  reinforcement learning, etc. Along with the wide range of applications, there have been abundant studies on concerning  the computing  behaviors of SBO. However, the generalization guarantees of SBO methods are far less understood from the lens of statistical learning theory. In this paper, we provide a systematical generalization analysis of  the first-order gradient-based bilevel optimization methods. Firstly, we establish the quantitative connections between the on-average argument stability and the generalization gap of SBO methods. Then, we derive the upper bounds of on-average argument stability for single timescale stochastic gradient descent (SGD) and two timescale SGD, where three settings (nonconvex-nonconvex (NC-NC), convex-convex (C-C) and strongly-convex-strongly-convex (SC-SC)) are considered respectively. Experimental analysis validates our theoretical findings. Compared with the previous algorithmic stability analysis,  our  results do not require the re-initialization of the inner-level parameters before each iteration and are suit for more general objective functions.  
+# Codes for "Stability-based Generalization Assessment for Stochastic Bilevel Optimization" submitted to Neural Computation
 
 # Code & Data Acknowledgement
 
 ## Hyperparameter Optimization
 
-As for hyperparameter optimization task, we employed the codes from [1] (https://github.com/baofff/stability_ho) with several modifications (e.g., remove the re-initialization operation).
+As for hyperparameter optimization task, we employed the codes from [1] (https://githubfast.com/baofff/stability_ho) with several modifications (e.g., remove the re-initialization operation).
 
 ## Meta Learning
 
-(2) As for meta learning task, we employed the codes from [2] (https://github.com/JunjieYang97/stocBiO) .
+(2) As for meta learning task, we employed the codes from [2] (https://githubfast.com/JunjieYang97/stocBiO) .
 
 
 
@@ -22,7 +20,7 @@ MNIST data [3] can be downloaded from the Python library "torch.utils.data"
 
 # Omniglot data set for one-shot learning
 
-Omniglot data [4] can be downloaded from https://github.com/brendenlake/omniglot
+Omniglot data [4] can be downloaded from https://githubfast.com/brendenlake/omniglot
 
 
 
