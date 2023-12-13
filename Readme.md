@@ -1,4 +1,4 @@
-# Codes for "Stability-based Generalization Assessment for Stochastic Bilevel Optimization" submitted to Neural Computation
+# Codes for "Stability-based Generalization Assessment for Stochastic Bilevel Optimization"
 
 # Code & Data Acknowledgement
 
