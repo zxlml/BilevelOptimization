@@ -71,7 +71,8 @@ pages = {1332-1338},
 year = {2015}}
 ```
 
-## If you are interested in this work, please refer to [Link]([链接地址](https://www.ijcai.org/proceedings/2024/609))`` and cite as
+## If you are interested in this work, please refer to https://www.ijcai.org/proceedings/2024/609 
+## and cite as
 
 @inproceedings{zhang2024genbo,
   title     = {Fine-grained Analysis of Stability and Generalization for Stochastic Bilevel Optimization},
