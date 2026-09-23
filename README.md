@@ -1,88 +1,246 @@
-# Codes for "Stability-based Generalization Assessment for Stochastic Bilevel Optimization" accepted by IJCAI 2024.
+<div align="center">
 
-# Code & Data Acknowledgement
+**English** | [简体中文](./README_zh.md)
 
-## Hyperparameter Optimization
+</div>
 
-As for hyperparameter optimization task, we employed the codes from [1] (https://githubfast.com/baofff/stability_ho) with several modifications (e.g., remove the re-initialization operation).
+<h1 align="center">BilevelOptimization: Fine-grained Analysis of Stability and Generalization for Stochastic Bilevel Optimization</h1>
 
-## Meta Learning
+<p align="center">
+  <a href="https://www.ijcai.org/proceedings/2024/609">
+    <img src="https://img.shields.io/badge/IJCAI_2024-Paper-red" alt="IJCAI 2024">
+  </a>
+  <a href="https://github.com/zxlml/BilevelOptimization">
+    <img src="https://img.shields.io/github/stars/zxlml/BilevelOptimization?style=social" alt="GitHub Stars">
+  </a>
+  <img src="https://img.shields.io/github/last-commit/zxlml/BilevelOptimization?color=blue" alt="Last Commit">
+  <img src="https://img.shields.io/badge/PRs-Welcome-red" alt="PRs Welcome">
+</p>
 
-(2) As for meta learning task, we employed the codes from [2] (https://githubfast.com/JunjieYang97/stocBiO) .
+<h5 align="center"> ⭐ If you like our project, please give us a star on GitHub for the latest updates! ⭐ </h5>
 
+---
 
+**BilevelOptimization** is the official implementation of the IJCAI 2024 paper *"Fine-grained Analysis of Stability and Generalization for Stochastic Bilevel Optimization"*. It provides first-order stochastic bilevel optimization (SBO) solvers together with an empirical validation framework that connects the **on-average argument stability** of an algorithm with its **generalization gap**, reproducing all key findings of the paper on hyperparameter optimization as data reweighting.
 
-# Data Source
+* 🧮 **Three Algorithms from the Paper**
+  <br> SSGD (Algorithm 1), TSGD with warm start (Algorithm 2), and UD with re-initialization (Algorithm 3), all following the paper's convention (K = outer iterations, T = inner iterations).
 
-# MNIST data set for data cleaning 
+* 📈 **Generalization Gap Assessment**
+  <br> Full-dataset validation / testing errors and their divergence (Eq. 2), tracked over training for different sample sizes, iteration budgets, and learning rates.
 
-MNIST data [3] can be downloaded from the Python library "torch.utils.data"
+* 🔬 **Empirical Stability Measurement**
+  <br> On-average argument stability (Definition 5) measured by re-running the algorithm with one validation sample replaced, validating the O(K/m1) theory (Table 1).
 
-# Omniglot data set for one-shot learning
+* ⚙️ **Paper-faithful Experiment Pipeline**
+  <br> 50% label-corrupted MNIST reweighting, 784/256/10 MLP, batch size 8, step sizes 0.01 (inner) / 5 (outer), multi-seed averaging with CSV + curve outputs.
 
-Omniglot data [4] can be downloaded from https://githubfast.com/brendenlake/omniglot
+<span id='news'/>
 
+## 📢 News
 
+- **[2026-09-24]**: 🚀 Major code refactoring released: paper-faithful K/T iteration convention, SSGD/TSGD/UD implementations, fixed generalization-gap estimation, empirical stability measurement, multi-seed experiment driver, and a 10-case unit test suite.
+- **[2024-08]**: 🎉🎉🎉 The paper has been accepted by **IJCAI 2024** (proceedings pages 5508–5516).
+- **[2024]**: 🚀 Initial code release for hyperparameter optimization (data reweighting) and meta learning.
 
-## Reference
+<span id='contents'/>
 
-[1] Stability and generalization of bilevel programming in hyperparameter optimization
+## 📑 Table of Contents
+
+* <a href='#algorithms'>🧮 Algorithms</a>
+* <a href='#installation'>🔧 Installation</a>
+* <a href='#quickstart'>⚡ Quick Start</a>
+* <a href='#structure'>📁 Project Structure</a>
+* <a href='#results'>📊 Experimental Results</a>
+* <a href='#tests'>🧪 Unit Tests</a>
+* <a href='#todo'>☑️ Todo List</a>
+* <a href='#citation'>📚 Citation</a>
+* <a href='#acknowledgement'>🔗 Acknowledgement</a>
+
+<span id='algorithms'/>
+
+## 🧮 Algorithms
+
+The paper considers the stochastic bilevel formulation
 
 ```
-@article{bao2021stability,
-  title={Stability and generalization of bilevel programming in hyperparameter optimization},
-  author={Bao, Fan and Wu, Guoqiang and Li, Chongxuan and Zhu, Jun and Zhang, Bo},
-  journal={Advances in Neural Information Processing Systems},
-  volume={34},
-  pages={4529--4541},
-  year={2021}}
+min_{x}  R(x) = F(x, y*(x)) = E_{ξ}[f(x, y*(x); ξ)]
+s.t.     y*(x) = argmin_{y} G(x, y) = E_{ζ}[g(x, y; ζ)]
 ```
 
-[2] Bilevel Optimization: Nonasymptotic Analysis and Faster Algorithms
+and analyzes first-order gradient methods. Three solvers are provided (`core/ablo.py`):
 
-```
-@inproceedings{ji2021bilevel,
-	author = {Ji, Kaiyi and Yang, Junjie and Liang, Yingbin},
-	title = {Bilevel Optimization: Nonasymptotic Analysis and Faster Algorithms},
-	booktitle={International Conference on Machine Learning (ICML)},
-	year = {2021}}
-```
+| Algorithm | Paper | Key Property | Setting |
+| :--- | :--- | :--- | :--- |
+| **SSGD** | Algorithm 1 | Single timescale, one inner + one outer step per iteration (`T = 1`) | `ho_algo='ssgd'` / `T=1` |
+| **TSGD** | Algorithm 2 | Two timescale: `T` inner steps per outer step, **warm start** `y0_{k+1} = y^T_k` | `ho_algo='tsgd'` |
+| **UD** | Algorithm 3 (Bao et al., 2021) | Two timescale with **re-initialization** `y0_k = y0` before each outer loop | `ho_algo='ud'` |
 
-[3]  MNIST dataset
+The generalization gap (Eq. 2) is estimated by the divergence between the validation error and the testing error, and the empirical `l2` on-average argument stability (Definition 5) is measured via paired runs in which one validation sample is replaced by an independent draw from `D1`.
 
-```
-@article{lecun1998mnist,
-  title={The MNIST database of handwritten digits},
-  author={LeCun, Yann},
-  journal={http://yann. lecun. com/exdb/mnist/},
-  year={1998}}
-```
+<span id='installation'/>
 
-[4]  Omniglot dataset
+## 🔧 Installation
 
-```
-@article{
-author = {Brenden M. Lake  and Ruslan Salakhutdinov  and Joshua B. Tenenbaum },
-title = {Human-level concept learning through probabilistic program induction},
-journal = {Science},
-volume = {350},
-number = {6266},
-pages = {1332-1338},
-year = {2015}}
+```bash
+# Clone the repository
+git clone https://github.com/zxlml/BilevelOptimization.git
+cd BilevelOptimization
+
+# Create virtual environment
+conda create -n sbo python=3.10 -y
+conda activate sbo
+
+# Install dependencies
+pip install torch torchvision matplotlib pytest
 ```
 
-## If you are interested in this work, please refer to https://www.ijcai.org/proceedings/2024/609 
-## and cite as
+The MNIST dataset is downloaded automatically by `torchvision` on the first run (cached under `workspace/datasets/mnist`).
 
+<span id='quickstart'/>
+
+## ⚡ Quick Start
+
+All experiments are driven by `Hyperparameter_Optimization.py` (paper settings by default):
+
+```bash
+# 1. Fast end-to-end sanity check (a few seconds)
+python Hyperparameter_Optimization.py --mode smoke
+
+# 2. Fig.1 analog: vary inner iterations T (1, 32) with K = 5000, 3 seeds
+python Hyperparameter_Optimization.py --mode fig1 --K_max 5000 --seeds 42 52 82
+
+# 3. Fig.2 analog: SSGD (T = 1) with varying validation size m1 (500, 2000), 5 seeds
+python Hyperparameter_Optimization.py --mode fig2 --K_max 5000 --seeds 42 52 62 72 82
+
+# 4. Learning-rate sensitivity: lr_l x lr_h grid on SSGD
+python Hyperparameter_Optimization.py --mode lr --K_max 3000 --seeds 42 52 62
+
+# 5. Empirical on-average argument stability (Definition 5)
+python Hyperparameter_Optimization.py --mode stability --K_max 2000 --seeds 42
+
+# Single run with a custom configuration (also supports --mode all)
+python core/run.py  # see Hyperparameter_Optimization.default_config() for the full arg list
+```
+
+Every mode writes averaged curves (`*_summary.csv`) and per-curve plots into `workspace/exp/<mode>_<timestamp>/`. Curves are evaluated every `--eval_every` outer iterations on the full validation / test sets.
+
+<span id='structure'/>
+
+## 📁 Project Structure
+
+```
+BilevelOptimization/
+├── Hyperparameter_Optimization.py   # Experiment driver (smoke / fig1 / fig2 / lr / stability)
+├── Meta_Learning.py                 # Omniglot one-shot learning (l2l, SSGD vs TSGD adaptation steps)
+├── core/
+│   ├── ablo.py                      # SSGD / TSGD / UD solvers + stability measurement
+│   ├── datasets.py                  # Corrupted MNIST (50% label noise) & Omniglot generators
+│   ├── loss.py                      # ReweightingMLP / MLPFeatureLearning bilevel losses
+│   ├── mlp.py                       # MLP parameter factory & forward
+│   ├── random_search.py             # Random-search baseline
+│   ├── run.py                       # Single-run entry (logging, record saving, plots)
+│   └── utils.py                     # Seed / loader / CSV export / record averaging utilities
+├── func/                            # Autograd helpers (unrolled differentiation, tensor ops)
+├── tests/                           # Unit tests (pytest)
+├── results/                         # Curves from our paper-faithful reproduction runs
+└── workspace/                       # (git-ignored) datasets, logs, run outputs
+```
+
+<span id='results'/>
+
+## 📊 Experimental Results
+
+Reproduction curves (averaged over seeds, matching paper Sec. 5 settings) are provided in [`results/`](./results/). Raw summary CSVs: [`results/fig1_summary.csv`](./results/fig1_summary.csv), [`fig2_summary.csv`](./results/fig2_summary.csv), [`lr_summary.csv`](./results/lr_summary.csv), [`stability.csv`](./results/stability.csv), [`ud_vs_tsgd_summary.csv`](./results/ud_vs_tsgd_summary.csv).
+
+**Fig.1 analog — vary `T` and `K` (TSGD, 3 seeds, `K_max = 5000`)**
+
+| Config | val @K=1000 | val @K=5000 | test @K=5000 | gap @K=5000 |
+| :--- | :--- | :--- | :--- | :--- |
+| TSGD, T=1  | 1.559 | **1.138** | 1.144 | +0.006 |
+| TSGD, T=32 | **1.188** (min) | 2.037 (overfits) | 2.167 | **+0.130** |
+
+→ Too large `K` and `T` reduce generalization due to overfitting; with `T = 32` the testing error increases after `K ≈ 1000` (paper: overfitting for large `K` with `T = 32`).
+
+**Fig.2 analog — SSGD (`T = 1`) with varying validation size `m1` (5 seeds, `K_max = 5000`)**
+
+| Config | val error | test error | gap | 0-1 test error |
+| :--- | :--- | :--- | :--- | :--- |
+| m1 = 500  | 1.067 | 1.118 | **+0.051** (grows with K) | 0.222 |
+| m1 = 2000 | 1.114 | **1.099** | **-0.015** (stable) | 0.200 |
+
+→ A larger validation set improves generalization: the gap of the small-`m1` run grows steadily with `K`, while the large-`m1` gap stays flat (paper Fig. 2).
+
+**Learning-rate sensitivity (SSGD, `K = 3000`, 3 seeds)**
+
+| lr_l (inner) | 0-1 test error (lr_h = 0.5) | 0-1 test error (lr_h = 5.0) |
+| :--- | :--- | :--- |
+| 0.001 (underfit) | 0.374 | 0.376 |
+| 0.01 (paper)     | **0.181** | **0.182** |
+| 0.1 (too large)  | 0.338 | 0.317 |
+
+→ Appropriate learning rates are crucial; the paper's setting `lr_l = 0.01, lr_h = 5` lies in the stable optimum.
+
+**Empirical `l2` on-average argument stability (SSGD, 3 replaced validation samples)**
+
+| m1 \ K | K = 1000 | K = 2000 |
+| :--- | :--- | :--- |
+| 500  | 2.25e-4 | 6.26e-4 (x2.8) |
+| 2000 | 1.17e-4 | 2.10e-4 (x1.8) |
+
+→ The drift grows roughly linearly with `K` and shrinks with `m1`, consistent with the `O(K/m1)` bounds of Table 1.
+
+**UD (re-initialization) vs TSGD (warm start), `T = 32`, `K = 2000`, 2 seeds**
+
+| Algorithm | val error | test error | 0-1 test error |
+| :--- | :--- | :--- | :--- |
+| UD (Alg. 3)   | 2.258 | 2.262 | 0.791 |
+| TSGD (Alg. 2) | **1.268** | **1.241** | **0.376** |
+
+→ Re-initializing the inner level wastes computation and severely underfits, motivating the paper's analysis of continuously-updated (SSGD/TSGD) methods.
+
+<span id='tests'/>
+
+## 🧪 Unit Tests
+
+```bash
+python -m pytest tests/ -v
+```
+
+10 test cases cover: single-step gradient correctness, hypergradient flow to the outer variable, UD re-initialization semantics vs warm start, bilevel convergence, gap consistency, NaN early-stopping, multi-seed record averaging, 50% MNIST label corruption, and a real-MNIST convergence smoke test.
+
+<span id='todo'/>
+
+## ☑️ Todo List
+
+- [ ] GPU acceleration and mixed-precision support
+- [ ] Meta-learning (Omniglot) experiment driver with the same multi-seed pipeline
+- [ ] More bilevel applications (data cleaning, Coreset selection)
+- [ ] Automatic step-size scheduling beyond the constant setting
+
+<span id='citation'/>
+
+## 📚 Citation
+
+If you are interested in this work, please refer to [the IJCAI 2024 proceedings](https://www.ijcai.org/proceedings/2024/609) and cite as:
+
+```bibtex
 @inproceedings{zhang2024genbo,
   title     = {Fine-grained Analysis of Stability and Generalization for Stochastic Bilevel Optimization},
   author    = {Zhang, Xuelin and Chen, Hong and Gu, Bin and Gong, Tieliang and Zheng, Feng},
   booktitle = {Proceedings of the Thirty-Third International Joint Conference on
-               Artificial Intelligence, {IJCAI-24}}
+               Artificial Intelligence, {IJCAI-24}},
   pages     = {5508--5516},
   year      = {2024}
 }
+```
 
+<span id='acknowledgement'/>
 
+## 🔗 Acknowledgement
 
+We thank the authors of the following projects from which part of the codes and data pipelines are adapted:
 
+* [stability_ho](https://github.com/baofff/stability_ho) — Stability and generalization of bilevel programming in hyperparameter optimization (NeurIPS 2021)
+* [stocBiO](https://github.com/JunjieYang97/stocBiO) — Bilevel Optimization: Nonasymptotic Analysis and Faster Algorithms (ICML 2021)
+* [MNIST](http://yann.lecun.com/exdb/mnist/) and [Omniglot](https://github.com/brendenlake/omniglot) datasets
