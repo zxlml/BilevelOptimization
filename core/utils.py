@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import random
 import os
+import csv
 import pprint
 import logging
 import matplotlib
@@ -69,12 +70,43 @@ def iter_islast(iterable):
 def plot_record(record, path):
     os.makedirs(path, exist_ok=True)
     for curve_name, data in record.items():
+        if len(data) == 0:
+            continue
         x = list(map(lambda z: z[0], data))
         y = list(map(lambda z: z[1], data))
         plt.plot(x, y, label="{}".format(curve_name))
         plt.title(curve_name)
         plt.savefig(os.path.join(path, "%s.png" % curve_name))
         plt.close()
+
+
+def save_record_csv(record, path):
+    r"""Dump a record dict {(it, val) lists} to CSV, one row per iteration."""
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    rows = {}
+    for key, data in record.items():
+        for it, val in data:
+            rows.setdefault(it, {})[key] = val
+    its = sorted(rows.keys())
+    keys = list(record.keys())
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(["iteration"] + keys)
+        for it in its:
+            writer.writerow([it] + [rows[it].get(k, "") for k in keys])
+
+
+def average_records(records):
+    r"""Average record dicts (same keys, same evaluation grids) into mean/std."""
+    mean_rec, std_rec = {}, {}
+    for key in records[0]:
+        grids = [dict(rec[key]) for rec in records]
+        its = sorted(grids[0].keys())
+        assert all(sorted(g.keys()) == its for g in grids), "eval grids differ across runs"
+        vals = np.array([[g[i] for i in its] for g in grids])
+        mean_rec[key] = list(zip(its, vals.mean(axis=0)))
+        std_rec[key] = list(zip(its, vals.std(axis=0)))
+    return mean_rec, std_rec
 
 
 def set_logger(fname):

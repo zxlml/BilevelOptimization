@@ -30,24 +30,26 @@ def run(args):
     tr_dataset, val_dataset, te_dataset, mval_dataset = data_gen_fn(args.m_tr, args.m_val, args.m_te, args.m_mval, args.x_dim)
     tr_batch_size = len(tr_dataset) if 'batch_size' not in args else args.batch_size
     val_batch_size = len(val_dataset) if 'batch_size' not in args else args.batch_size
-    te_batch_size = len(te_dataset) if 'batch_size' not in args else args.batch_size
-    mval_batch_size = len(mval_dataset) if 'batch_size' not in args else args.batch_size
+    eval_batch_size = getattr(args, 'eval_batch_size', 500)
 
-    if args.loss in ['ReweightingLinear', 'ReweightingMLP']:
-        record = {"loss_val": [], "zero_one_loss_val": [],
-                  "loss_te": [], "zero_one_loss_te": [],
-                  "loss_mval": [], "zero_one_loss_mval": [], "gap": []}
-    else:
-        record = {"loss_tr_sgd": [], "loss_tr": [], "zero_one_loss_tr": [],
-                  "loss_val": [], "zero_one_loss_val": [],
-                  "loss_te": [], "zero_one_loss_te": [],
-                  "loss_mval": [], "zero_one_loss_mval": [], "gap": []}
-    if args.ho_algo == 'ablo':
-        ablo.train(tr_dataset, val_dataset, te_dataset, mval_dataset, loss_cls, args.K, args.T, args.lr_l, args.wd_l, args.lr_h,
-                   args.wd_h, args.mm_h, tr_batch_size, val_batch_size, te_batch_size, mval_batch_size, device, record)
+    # record keys follow paper Sec. 5: full-dataset validation / testing error
+    # and the generalization gap estimated by their divergence
+    record = {"loss_tr_sgd": [], "loss_val_batch": [],
+              "loss_val": [], "zero_one_loss_val": [],
+              "loss_te": [], "zero_one_loss_te": [],
+              "gap": [], "zero_one_gap": []}
+
+    # paper convention: K = outer iterations, T = inner iterations per outer loop.
+    # 'ssgd' -> Algorithm 1 (T = 1), 'tsgd' -> Algorithm 2 (warm start),
+    # 'ud'   -> Algorithm 3 (Bao et al. 2021, re-initialization)
+    if args.ho_algo in ('ssgd', 'tsgd', 'ud'):
+        ablo.train(tr_dataset, val_dataset, te_dataset, loss_cls, args.K, args.T, args.lr_l, args.wd_l, args.lr_h,
+                   args.wd_h, args.mm_h, tr_batch_size, val_batch_size, eval_batch_size, device, record,
+                   re_init=(args.ho_algo == 'ud'), eval_every=getattr(args, 'eval_every', 50))
     elif args.ho_algo == 'random_search':
         rs.train(tr_dataset, val_dataset, te_dataset, loss_cls, loss_cls.lamb_gen(args.T, requires_grad=False),
-                 args.K, args.lr_l, args.wd_l, tr_batch_size, val_batch_size, te_batch_size, device, record)
+                 args.K, args.lr_l, args.wd_l, tr_batch_size, eval_batch_size, device, record)
 
     torch.save(record, os.path.join(args.workspace_root, "record.pt"))
+    save_record_csv(record, os.path.join(args.workspace_root, "record.csv"))
     plot_record(record, args.workspace_root)

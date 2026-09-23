@@ -43,8 +43,11 @@ def fast_adapt(batch,
     adaptation_data, adaptation_labels = data[adaptation_indices], labels[adaptation_indices]
     evaluation_data, evaluation_labels = data[evaluation_indices], labels[evaluation_indices]
 
-    train_error = loss(learner(adaptation_data), adaptation_labels)
-    learner.adapt(train_error)
+    # SSGD: adaptation_steps = 1 (T = 1, Algorithm 1);
+    # TSGD: adaptation_steps = T > 1 inner steps before the outer update (Algorithm 2)
+    for _ in range(adaptation_steps):
+        train_error = loss(learner(adaptation_data), adaptation_labels)
+        learner.adapt(train_error)
 
     predictions = learner(evaluation_data)
     valid_error = loss(predictions, evaluation_labels)
@@ -211,8 +214,9 @@ if __name__ == '__main__':
     parser.add_argument('--device', default='cuda:0', type=str)
     args = parser.parse_args()
     seeds = [42, 52, 62, 72, 82]
-    if algorithm =='SSGD':
-        stp = 0
+    # SSGD (Algorithm 1): T = 1 adaptation step; TSGD (Algorithm 2): T = inner_step
+    if algorithm == 'SSGD':
+        stp = 1
     else:
         stp = args.inner_step
     lr = 0.0005

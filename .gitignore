@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Datasets, logs and run outputs (downloaded / generated at runtime)
+workspace/
+
+# IDE
+.idea/
+.vscode/
