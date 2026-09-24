@@ -151,45 +151,7 @@ BilevelOptimization/
 
 ## 📊 Experimental Results
 
-Reproduction curves (averaged over seeds, matching paper Sec. 5 settings) are provided in [`results/`](./results/). Raw summary CSVs: [`results/fig1_summary.csv`](./results/fig1_summary.csv), [`fig2_summary.csv`](./results/fig2_summary.csv), [`lr_summary.csv`](./results/lr_summary.csv), [`stability.csv`](./results/stability.csv).
-
-**Fig.1 analog — vary `T` and `K` (TSGD, 3 seeds, `K_max = 5000`)**
-
-| Config | val @K=1000 | val @K=5000 | test @K=5000 | gap @K=5000 |
-| :--- | :--- | :--- | :--- | :--- |
-| TSGD, T=1  | 1.559 | **1.138** | 1.144 | +0.006 |
-| TSGD, T=32 | **1.188** (min) | 2.037 (overfits) | 2.167 | **+0.130** |
-
-→ Too large `K` and `T` reduce generalization due to overfitting; with `T = 32` the testing error increases after `K ≈ 1000` (paper: overfitting for large `K` with `T = 32`).
-
-**Fig.2 analog — SSGD (`T = 1`) with varying validation size `m1` (5 seeds, `K_max = 5000`)**
-
-| Config | val error | test error | gap | 0-1 test error |
-| :--- | :--- | :--- | :--- | :--- |
-| m1 = 500  | 1.067 | 1.118 | **+0.051** (grows with K) | 0.222 |
-| m1 = 2000 | 1.114 | **1.099** | **-0.015** (stable) | 0.200 |
-
-→ A larger validation set improves generalization: the gap of the small-`m1` run grows steadily with `K`, while the large-`m1` gap stays flat (paper Fig. 2).
-
-**Learning-rate sensitivity (SSGD, `K = 3000`, 3 seeds)**
-
-| lr_l (inner) | 0-1 test error (lr_h = 0.5) | 0-1 test error (lr_h = 5.0) |
-| :--- | :--- | :--- |
-| 0.001 (underfit) | 0.374 | 0.376 |
-| 0.01 (paper)     | **0.181** | **0.182** |
-| 0.1 (too large)  | 0.338 | 0.317 |
-
-→ Appropriate learning rates are crucial; the paper's setting `lr_l = 0.01, lr_h = 5` lies in the stable optimum.
-
-**Empirical `l2` on-average argument stability (SSGD, 3 replaced validation samples)**
-
-| m1 \ K | K = 1000 | K = 2000 |
-| :--- | :--- | :--- |
-| 500  | 2.25e-4 | 6.26e-4 (x2.8) |
-| 2000 | 1.17e-4 | 2.10e-4 (x1.8) |
-
-→ The drift grows roughly linearly with `K` and shrinks with `m1`, consistent with the `O(K/m1)` bounds of Table 1.
-
+Reproduction curves (averaged over seeds, matching paper Sec. 5 settings) are provided in the [`results/`](./results/) directory as summary CSVs, without any result numbers repeated here. Run the commands in [Quick Start](#quickstart) to regenerate all curves and summaries.
 
 <span id='tests'/>
 
