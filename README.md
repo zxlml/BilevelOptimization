@@ -151,7 +151,7 @@ BilevelOptimization/
 
 ## 📊 Experimental Results
 
-Reproduction curves (averaged over seeds, matching paper Sec. 5 settings) are provided in [`results/`](./results/). Raw summary CSVs: [`results/fig1_summary.csv`](./results/fig1_summary.csv), [`fig2_summary.csv`](./results/fig2_summary.csv), [`lr_summary.csv`](./results/lr_summary.csv), [`stability.csv`](./results/stability.csv), [`ud_vs_tsgd_summary.csv`](./results/ud_vs_tsgd_summary.csv).
+Reproduction curves (averaged over seeds, matching paper Sec. 5 settings) are provided in [`results/`](./results/). Raw summary CSVs: [`results/fig1_summary.csv`](./results/fig1_summary.csv), [`fig2_summary.csv`](./results/fig2_summary.csv), [`lr_summary.csv`](./results/lr_summary.csv), [`stability.csv`](./results/stability.csv).
 
 **Fig.1 analog — vary `T` and `K` (TSGD, 3 seeds, `K_max = 5000`)**
 
@@ -190,14 +190,6 @@ Reproduction curves (averaged over seeds, matching paper Sec. 5 settings) are pr
 
 → The drift grows roughly linearly with `K` and shrinks with `m1`, consistent with the `O(K/m1)` bounds of Table 1.
 
-**UD (re-initialization) vs TSGD (warm start), `T = 32`, `K = 2000`, 2 seeds**
-
-| Algorithm | val error | test error | 0-1 test error |
-| :--- | :--- | :--- | :--- |
-| UD (Alg. 3)   | 2.258 | 2.262 | 0.791 |
-| TSGD (Alg. 2) | **1.268** | **1.241** | **0.376** |
-
-→ Re-initializing the inner level wastes computation and severely underfits, motivating the paper's analysis of continuously-updated (SSGD/TSGD) methods.
 
 <span id='tests'/>
 

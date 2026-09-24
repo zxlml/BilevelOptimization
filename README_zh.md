@@ -151,7 +151,7 @@ BilevelOptimization/
 
 ## 📊 实验结果
 
-复现曲线（多 seed 平均，符合论文第 5 节设置）见 [`results/`](./results/) 目录。原始汇总 CSV：[`results/fig1_summary.csv`](./results/fig1_summary.csv)、[`fig2_summary.csv`](./results/fig2_summary.csv)、[`lr_summary.csv`](./results/lr_summary.csv)、[`stability.csv`](./results/stability.csv)、[`ud_vs_tsgd_summary.csv`](./results/ud_vs_tsgd_summary.csv)。
+复现曲线（多 seed 平均，符合论文第 5 节设置）见 [`results/`](./results/) 目录。原始汇总 CSV：[`results/fig1_summary.csv`](./results/fig1_summary.csv)、[`fig2_summary.csv`](./results/fig2_summary.csv)、[`lr_summary.csv`](./results/lr_summary.csv)、[`stability.csv`](./results/stability.csv)。
 
 **Fig.1 复现 —— 变化 `T` 与 `K`（TSGD，3 个 seed，`K_max = 5000`）**
 
