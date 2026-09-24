@@ -4,12 +4,13 @@
 
 </div>
 
-<h1 align="center">BilevelOptimization: Fine-grained Analysis of Stability and Generalization for Stochastic Bilevel Optimization</h1>
+<h1 align="center">Fine-grained Analysis of Stability and Generalization for Stochastic Bilevel Optimization</h1>
 
 <p align="center">
   <a href="https://www.ijcai.org/proceedings/2024/609">
-    <img src="https://img.shields.io/badge/IJCAI_2024-Paper-red" alt="IJCAI 2024">
+    <img src="https://img.shields.io/badge/Paper-IJCAI_2024-red" alt="Paper">
   </a>
+  <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+">
   <a href="https://github.com/zxlml/BilevelOptimization">
     <img src="https://img.shields.io/github/stars/zxlml/BilevelOptimization?style=social" alt="GitHub Stars">
   </a>
@@ -179,15 +180,20 @@ python -m pytest tests/ -v
 If you are interested in this work, please refer to [the IJCAI 2024 proceedings](https://www.ijcai.org/proceedings/2024/609) and cite as:
 
 ```bibtex
-@inproceedings{zhang2024genbo,
+@inproceedings{ijcai2024p609,
   title     = {Fine-grained Analysis of Stability and Generalization for Stochastic Bilevel Optimization},
   author    = {Zhang, Xuelin and Chen, Hong and Gu, Bin and Gong, Tieliang and Zheng, Feng},
   booktitle = {Proceedings of the Thirty-Third International Joint Conference on
                Artificial Intelligence, {IJCAI-24}},
+  publisher = {International Joint Conferences on Artificial Intelligence Organization},
+  editor    = {Kate Larson},
   pages     = {5508--5516},
-  year      = {2024}
-}
-```
+  year      = {2024},
+  month     = {8},
+  note      = {Main Track},
+  doi       = {10.24963/ijcai.2024/609},
+  url       = {https://doi.org/10.24963/ijcai.2024/609},
+}```
 
 <span id='acknowledgement'/>
 
